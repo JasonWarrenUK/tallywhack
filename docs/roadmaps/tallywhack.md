@@ -20,7 +20,7 @@ flowchart TD
   M4(["`**Milestone 4**<br/>Rivalry`"]):::mile
   M5(["`**Milestone 5**<br/>Polish`"]):::mile
 
-  1FN4["`*1FN.4*<br/>**FN**<br/>Themeable design system`"]:::open
+  1FN4["`*1FN.4*<br/>**FN**<br/>Themeable design system`"]
   1FN5["`*1FN.5*<br/>**FN**<br/>PWA + mobile-first baseline`"]:::open
 
   2MOD1["`*2MOD.1*<br/>**MOD**<br/>Port Grumble`"]
@@ -95,11 +95,11 @@ flowchart TD
 
 ### To Do
 
-- [ ] 1FN.4. Establish themeable design system (Reasonable Colors base, swappable tokens, shared components, module-selectable palettes) — **depends on 1FN.1**
 - [ ] 1FN.5. PWA + mobile-first baseline (manifest, installable, responsive shell, big touch targets) — **depends on 1FN.1**
 
 ### Completed
 
+- [x] 1FN.4. Establish themeable design system (Reasonable Colors base, swappable tokens, shared components, module-selectable palettes) — contract widened (`winner: PlayerId | null`), shared `createLocalStore`, 6 shared components, `emerald`/`green`/`raspberry` themes shipped
 - [x] 1FN.3. Build module auto-discovery + registry (filesystem-derived, category-aware) — **depends on 1FN.2**
 - [x] 1FN.2. Define the module contract (manifest: id, name, category, icon, routes, theme, results-shape) — **depends on 1FN.1**
 - [x] 1FN.1. Scaffold SvelteKit + Svelte 5 + Bun app (adapter-vercel) — single flat app at repo root, Reasonable Colors base, module directory skeleton
@@ -112,11 +112,14 @@ flowchart TD
 
 ### Blocked
 
-- [ ] 2MOD.1. Port Grumble (Gin Rummy scorer) into the module system — **depends on 1FN.2, 1FN.3, 1FN.4**
-- [ ] 2MOD.2. Port Tiles (Scrabble scorer) from single-file HTML to Svelte module — **depends on 1FN.2, 1FN.3, 1FN.4**
-- [ ] 2MOD.3. Build Sushi Go! scorer — full auto-scoring engine, per-category card input (maki ties, set bonuses, wasabi/nigiri, pudding penalties, dessert carry-over) — **depends on 1FN.2, 1FN.3, 1FN.4**
 - [ ] 2MOD.4. Port Reckoner (group ranking/decision tool) into the module system — **depends on 1FN.2, 1FN.3, 1FN.4**
 - [ ] 2MOD.5. Port Baby Name Chooser — UI to Svelte, Claude calls moved to SvelteKit server route — **depends on 1FN.2, 1FN.3, 1FN.4**
+
+### Completed
+
+- [x] 2MOD.3. Build Sushi Go! scorer — full auto-scoring engine, maki ties, set bonuses, wasabi/nigiri, pudding carry-over + tiebreaker, draw detection (`winner: null`)
+- [x] 2MOD.2. Port Tiles (Scrabble scorer) from single-file HTML to Svelte module — tile/quick mode, caret-preserving input, end-game rack adjustment, draw support
+- [x] 2MOD.1. Port Grumble (Gin Rummy scorer) into the module system — full scoring pipeline, persistence, multi-game match tracking
 
 ---
 
