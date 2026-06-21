@@ -84,6 +84,45 @@ export type ModuleResult =
 export type ModuleCategory = 'games' | 'tools';
 
 // ---------------------------------------------------------------------------
+// Palette tokens — 1FN.4
+// ---------------------------------------------------------------------------
+
+/**
+ * All selectable colour palette tokens, one per Reasonable Colors named set.
+ *
+ * Each token maps to a block of `[data-palette='TOKEN']` CSS custom-property
+ * overrides in app.css. The default palette is `'azure'` (applied on `:root`).
+ *
+ * The 24 names match the Reasonable Colors variable convention exactly:
+ * `--color-TOKEN-{1..6}` (e.g. `--color-emerald-3`).
+ */
+export type PaletteToken =
+	| 'amber'
+	| 'aquamarine'
+	| 'azure'
+	| 'blue'
+	| 'cerulean'
+	| 'chartreuse'
+	| 'cinnamon'
+	| 'cyan'
+	| 'emerald'
+	| 'green'
+	| 'indigo'
+	| 'lime'
+	| 'magenta'
+	| 'orange'
+	| 'pink'
+	| 'powder'
+	| 'purple'
+	| 'raspberry'
+	| 'red'
+	| 'rose'
+	| 'sky'
+	| 'teal'
+	| 'violet'
+	| 'yellow';
+
+// ---------------------------------------------------------------------------
 // Module manifest
 // ---------------------------------------------------------------------------
 
@@ -120,10 +159,16 @@ export interface ModuleManifest<R = unknown> {
 	routes: string[];
 
 	/**
-	 * Palette token key for the module's colour theme (e.g. 'azure', 'emerald').
-	 * Loosely typed until 1FN.4 formalises the token/palette system.
+	 * Palette token that drives the module's colour theme.
+	 *
+	 * Maps to a `[data-palette='TOKEN']` CSS block in app.css which overrides the
+	 * `--color-primary`, `--color-primary-bg`, and `--color-primary-text` semantic
+	 * aliases for every component rendered inside that module. Must be one of the
+	 * 24 named Reasonable Colors sets defined in `PaletteToken`.
+	 *
+	 * @example 'emerald' → all primary colours shift to the emerald scale.
 	 */
-	theme: string;
+	theme: PaletteToken;
 
 	/**
 	 * Opaque discriminator the registry and persistence layer (3BE.6) can read

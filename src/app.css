@@ -1,6 +1,14 @@
 @import 'reasonable-colors/reasonable-colors.css';
 
-/* Semantic aliases — components use these, never raw Reasonable Colors vars directly */
+/*
+ * Semantic aliases — components use these, never raw Reasonable Colors vars directly.
+ *
+ * The three primary aliases are driven by the active module's PaletteToken via a
+ * [data-palette] attribute on the layout wrapper (see +layout.svelte). The default
+ * palette is azure, applied here on :root so the landing page has a colour identity.
+ *
+ * Surfaces always use the neutral gray scale — they do not shift with the palette.
+ */
 :root {
 	--color-primary: var(--color-azure-3);
 	--color-primary-bg: var(--color-azure-1);
@@ -9,7 +17,7 @@
 	--color-on-surface: var(--color-gray-6);
 	--color-muted: var(--color-gray-3);
 
-	/* Typography — system stack until 1FN.4 defines the real font choices */
+	/* Typography — system stack (1FN.4b will formalise the real font choices) */
 	--font-sans: system-ui, -apple-system, sans-serif;
 	--font-mono: ui-monospace, 'Cascadia Code', monospace;
 
@@ -26,6 +34,38 @@
 	--radius-md: 12px;
 	--radius-lg: 16px;
 }
+
+/*
+ * Per-palette overrides — one block per PaletteToken value (24 total).
+ *
+ * Pattern: shade 1 → bg, shade 3 → primary interactive, shade 6 → text/emphasis.
+ * Applied by +layout.svelte via data-palette on the root wrapper element.
+ * All other tokens (surface, spacing, radii, fonts) are palette-independent.
+ */
+[data-palette='amber']      { --color-primary: var(--color-amber-3);      --color-primary-bg: var(--color-amber-1);      --color-primary-text: var(--color-amber-6); }
+[data-palette='aquamarine'] { --color-primary: var(--color-aquamarine-3); --color-primary-bg: var(--color-aquamarine-1); --color-primary-text: var(--color-aquamarine-6); }
+[data-palette='azure']      { --color-primary: var(--color-azure-3);      --color-primary-bg: var(--color-azure-1);      --color-primary-text: var(--color-azure-6); }
+[data-palette='blue']       { --color-primary: var(--color-blue-3);       --color-primary-bg: var(--color-blue-1);       --color-primary-text: var(--color-blue-6); }
+[data-palette='cerulean']   { --color-primary: var(--color-cerulean-3);   --color-primary-bg: var(--color-cerulean-1);   --color-primary-text: var(--color-cerulean-6); }
+[data-palette='chartreuse'] { --color-primary: var(--color-chartreuse-3); --color-primary-bg: var(--color-chartreuse-1); --color-primary-text: var(--color-chartreuse-6); }
+[data-palette='cinnamon']   { --color-primary: var(--color-cinnamon-3);   --color-primary-bg: var(--color-cinnamon-1);   --color-primary-text: var(--color-cinnamon-6); }
+[data-palette='cyan']       { --color-primary: var(--color-cyan-3);       --color-primary-bg: var(--color-cyan-1);       --color-primary-text: var(--color-cyan-6); }
+[data-palette='emerald']    { --color-primary: var(--color-emerald-3);    --color-primary-bg: var(--color-emerald-1);    --color-primary-text: var(--color-emerald-6); }
+[data-palette='green']      { --color-primary: var(--color-green-3);      --color-primary-bg: var(--color-green-1);      --color-primary-text: var(--color-green-6); }
+[data-palette='indigo']     { --color-primary: var(--color-indigo-3);     --color-primary-bg: var(--color-indigo-1);     --color-primary-text: var(--color-indigo-6); }
+[data-palette='lime']       { --color-primary: var(--color-lime-3);       --color-primary-bg: var(--color-lime-1);       --color-primary-text: var(--color-lime-6); }
+[data-palette='magenta']    { --color-primary: var(--color-magenta-3);    --color-primary-bg: var(--color-magenta-1);    --color-primary-text: var(--color-magenta-6); }
+[data-palette='orange']     { --color-primary: var(--color-orange-3);     --color-primary-bg: var(--color-orange-1);     --color-primary-text: var(--color-orange-6); }
+[data-palette='pink']       { --color-primary: var(--color-pink-3);       --color-primary-bg: var(--color-pink-1);       --color-primary-text: var(--color-pink-6); }
+[data-palette='powder']     { --color-primary: var(--color-powder-3);     --color-primary-bg: var(--color-powder-1);     --color-primary-text: var(--color-powder-6); }
+[data-palette='purple']     { --color-primary: var(--color-purple-3);     --color-primary-bg: var(--color-purple-1);     --color-primary-text: var(--color-purple-6); }
+[data-palette='raspberry']  { --color-primary: var(--color-raspberry-3);  --color-primary-bg: var(--color-raspberry-1);  --color-primary-text: var(--color-raspberry-6); }
+[data-palette='red']        { --color-primary: var(--color-red-3);        --color-primary-bg: var(--color-red-1);        --color-primary-text: var(--color-red-6); }
+[data-palette='rose']       { --color-primary: var(--color-rose-3);       --color-primary-bg: var(--color-rose-1);       --color-primary-text: var(--color-rose-6); }
+[data-palette='sky']        { --color-primary: var(--color-sky-3);        --color-primary-bg: var(--color-sky-1);        --color-primary-text: var(--color-sky-6); }
+[data-palette='teal']       { --color-primary: var(--color-teal-3);       --color-primary-bg: var(--color-teal-1);       --color-primary-text: var(--color-teal-6); }
+[data-palette='violet']     { --color-primary: var(--color-violet-3);     --color-primary-bg: var(--color-violet-1);     --color-primary-text: var(--color-violet-6); }
+[data-palette='yellow']     { --color-primary: var(--color-yellow-3);     --color-primary-bg: var(--color-yellow-1);     --color-primary-text: var(--color-yellow-6); }
 
 /* Reset */
 *,

@@ -18,6 +18,7 @@ export {
 	type ModuleCategory,
 	type ModuleManifest,
 	type ModuleResult,
+	type PaletteToken,
 	type PlayerId,
 	type ToolOutput
 } from './types.js';
