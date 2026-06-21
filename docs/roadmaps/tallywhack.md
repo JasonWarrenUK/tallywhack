@@ -20,8 +20,6 @@ flowchart TD
   M4(["`**Milestone 4**<br/>Rivalry`"]):::mile
   M5(["`**Milestone 5**<br/>Polish`"]):::mile
 
-  1FN2["`*1FN.2*<br/>**FN**<br/>Module contract`"]:::open
-  1FN3["`*1FN.3*<br/>**FN**<br/>Auto-discovery + registry`"]
   1FN4["`*1FN.4*<br/>**FN**<br/>Themeable design system`"]:::open
   1FN5["`*1FN.5*<br/>**FN**<br/>PWA + mobile-first baseline`"]:::open
 
@@ -47,15 +45,8 @@ flowchart TD
   5PL2["`*5PL.2*<br/>**PL**<br/>PWA hardening`"]
   5PL3["`*5PL.3*<br/>**PL**<br/>Design polish pass`"]
 
-  M1 --> 1FN2
   M1 --> 1FN4
   M1 --> 1FN5
-  1FN2 --> 1FN3
-  1FN2 --> 2MOD1
-  1FN2 --> 2MOD2
-  1FN2 --> 2MOD3
-  1FN2 --> 2MOD4
-  1FN2 --> 2MOD5
   1FN4 --> 2MOD1
   1FN4 --> 2MOD2
   1FN4 --> 2MOD3
@@ -81,7 +72,6 @@ flowchart TD
   3BE2 --> 4RIV1
   3BE3 --> 3BE5
   3BE3 --> 3BE6
-  1FN3 --> 3BE5
   3BE5 --> 3BE6
   3BE5 --> 5PL3
   3BE6 --> 4RIV1
@@ -134,13 +124,16 @@ flowchart TD
 
 > Supabase schema (derived from built modules), real auth + RLS, app shell wired up, persistence live.
 
-### Blocked
+### To Do
 
 - [ ] 3BE.1. Provision Supabase cloud project + local dev workflow + env/secrets wiring — **depends on 1FN.1**
+
+### Blocked
+
 - [ ] 3BE.2. Design schema from modules (profiles, matches, results, tool_outputs, JOIN tables for aggregation) — **depends on 2MOD.1, 2MOD.2, 2MOD.3, 2MOD.4, 2MOD.5, 3BE.1**
 - [ ] 3BE.3. Implement Supabase auth (real login) + profiles + RLS policies (household scoping, 2 users) — **depends on 3BE.1, 3BE.2**
 - [ ] 3BE.4. Secure Baby Name Claude proxy (server route holds key, env-managed) — **depends on 2MOD.5, 3BE.1**
-- [ ] 3BE.5. Wire app shell — module launcher, navigation, category browsing, profile/identity — **depends on 1FN.3, 3BE.3**
+- [ ] 3BE.5. Wire app shell — module launcher, navigation, category browsing, profile/identity — **depends on 3BE.3** (1FN.3 ✓)
 - [ ] 3BE.6. Persist module outputs (game match history + tool outputs) to Supabase with hot-seat 2-player capture — **depends on 3BE.3, 3BE.5**
 
 ---
