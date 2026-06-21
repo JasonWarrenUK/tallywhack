@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tiles — two-player scorer</title>
+  <style>
+    :root {
+      --felt: #224B38;
+      --felt-2: #1B3D2E;
+      --felt-line: #2E5C46;
+      --bone: #ECE2C7;
+      --bone-2: #E2D5B4;
+      --bone-edge: #C7B68C;
+      --ink: #2A2620;
+      --ink-soft: #6B6453;
+      --brass: #C9A23F;
+      --brass-deep: #A07E22;
+      --dl: #79AFD4;
+      --tl: #2E6FA3;
+      --dw: #D98C8C;
+      --tw: #C0392B;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent
+    }
+
+    html,
+    body {
+      margin: 0
+    }
+
+    body {
+      font-family: var(--sans);
+      color: var(--bone);
+      background:
+        radial-gradient(120% 80% at 50% -10%, #2A5A43 0%, var(--felt) 45%, var(--felt-2) 100%) fixed;
+      min-height: 100dvh;
+      padding: 14px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #app {
+      max-width: 520px;
+      margin: 0 auto
+    }
+
+    /* ---- header ---- */
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin: 2px 2px 14px
+    }
+
+    .wordmark {
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font-size: 15px;
+      color: var(--bone)
+    }
+
+    .wordmark b {
+      color: var(--brass)
+    }
+
+    .sub {
+      font-size: 11px;
+      color: #9DBBA9;
+      letter-spacing: .04em
+    }
+
+    /* ---- scoreboard ---- */
+    #scoreboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px
+    }
+
+    .pl {
+      background: linear-gradient(180deg, var(--bone) 0%, var(--bone-2) 100%);
+      border-radius: 12px;
+      padding: 12px 12px 10px;
+      color: var(--ink);
+      border: 1px solid var(--bone-edge);
+      box-shadow: 0 2px 0 var(--bone-edge), 0 6px 14px rgba(0, 0, 0, .28);
+      position: relative;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .pl.active {
+      box-shadow: 0 0 0 2px var(--brass), 0 2px 0 var(--brass-deep), 0 10px 22px rgba(0, 0, 0, .4);
+      transform: translateY(-2px);
+    }
+
+    .pl .turnflag {
+      position: absolute;
+      top: -9px;
+      left: 12px;
+      display: none;
+      background: var(--brass);
+      color: #2A2007;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
+    }
+
+    .pl.active .turnflag {
+      display: block
+    }
+
+    .pl input.name {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--ink-soft);
+      padding: 0 0 2px;
+      letter-spacing: .02em;
+    }
+
+    .pl input.name:focus {
+      outline: 2px solid var(--brass);
+      outline-offset: 2px;
+      border-radius: 4px
+    }
+
+    .pl .score {
+      font-weight: 800;
+      font-size: 42px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.02em
+    }
+
+    .pl .delta {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brass-deep);
+      height: 15px;
+      visibility: hidden
+    }
+
+    .pl .delta.show {
+      visibility: visible
+    }
+
+    .pl .crown {
+      position: absolute;
+      top: 10px;
+      right: 11px;
+      font-size: 15px;
+      opacity: 0;
+      transition: opacity .2s
+    }
+
+    .pl.lead .crown {
+      opacity: 1
+    }
+
+    /* ---- panel shell ---- */
+    .panel {
+      background: rgba(0, 0, 0, .16);
+      border: 1px solid var(--felt-line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #9DBBA9;
+      font-weight: 700
+    }
+
+    /* ---- tiles ---- */
+    .tilerow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 54px;
+      align-items: center;
+      margin-bottom: 10px
+    }
+
+    .tilerow .empty {
+      color: #7FA08E;
+      font-size: 13px;
+      font-style: italic
+    }
+
+    .tile {
+      position: relative;
+      width: 46px;
+      height: 50px;
+      border: 0;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--bone) 0%, var(--bone-2) 100%);
+      color: var(--ink);
+      border-radius: 7px;
+      font-family: var(--sans);
+      box-shadow: 0 2px 0 var(--bone-edge), 0 3px 6px rgba(0, 0, 0, .3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 23px;
+      letter-spacing: -.01em;
+      transition: transform .08s ease, box-shadow .08s ease;
+    }
+
+    .tile:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 var(--bone-edge), 0 2px 4px rgba(0, 0, 0, .3)
+    }
+
+    .tile .val {
+      position: absolute;
+      right: 4px;
+      bottom: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      opacity: .8
+    }
+
+    .tile.sq-DL {
+      background: var(--dl);
+      color: #10324A
+    }
+
+    .tile.sq-TL {
+      background: var(--tl);
+      color: #EAF3FA
+    }
+
+    .tile.sq-DW {
+      background: var(--dw);
+      color: #4A1414
+    }
+
+    .tile.sq-TW {
+      background: var(--tw);
+      color: #FBE9E7
+    }
+
+    .tile.sq-DL,
+    .tile.sq-TL,
+    .tile.sq-DW,
+    .tile.sq-TW {
+      box-shadow: 0 2px 0 rgba(0, 0, 0, .25), 0 3px 6px rgba(0, 0, 0, .3)
+    }
+
+    .tile.blank {
+      font-style: italic;
+      opacity: .92
+    }
+
+    .tile.blank::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 1px dashed currentColor;
+      border-radius: 4px;
+      opacity: .45
+    }
+
+    .tile.sel {
+      box-shadow: 0 0 0 3px var(--brass), 0 2px 0 var(--bone-edge), 0 4px 9px rgba(0, 0, 0, .4);
+      z-index: 2
+    }
+
+    .tile.mini {
+      width: 26px;
+      height: 28px;
+      font-size: 14px;
+      border-radius: 4px;
+      box-shadow: 0 1px 0 var(--bone-edge)
+    }
+
+    .tile.mini .val {
+      font-size: 7px;
+      right: 2px;
+      bottom: 1px
+    }
+
+    .tile.mini.sq-DL,
+    .tile.mini.sq-TL,
+    .tile.mini.sq-DW,
+    .tile.mini.sq-TW {
+      box-shadow: 0 1px 0 rgba(0, 0, 0, .2)
+    }
+
+    /* ---- word input ---- */
+    .wordin {
+      width: 100%;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      text-align: center;
+      background: var(--felt-2);
+      color: var(--bone);
+      border: 1px solid var(--felt-line);
+      border-radius: 9px;
+      padding: 11px 12px;
+      margin-bottom: 12px;
+    }
+
+    .wordin::placeholder {
+      color: #5E7E6C;
+      letter-spacing: .06em;
+      font-weight: 600;
+      text-transform: none
+    }
+
+    .wordin:focus {
+      outline: 2px solid var(--brass);
+      outline-offset: 1px
+    }
+
+    /* ---- control bar ---- */
+    #controlBar {
+      margin-bottom: 12px;
+      min-height: 44px
+    }
+
+    .ctl-hint {
+      color: #7FA08E;
+      font-size: 12.5px;
+      font-style: italic;
+      padding: 11px 2px;
+      text-align: center
+    }
+
+    .ctl-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .ctl-label {
+      font-size: 11px;
+      color: #9DBBA9;
+      letter-spacing: .04em
+    }
+
+    .ctl-label b {
+      color: var(--bone)
+    }
+
+    .ctl-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap
+    }
+
+    .sqbtn {
+      flex: 1;
+      min-width: 52px;
+      min-height: 42px;
+      border: 1px solid rgba(0, 0, 0, .25);
+      border-radius: 8px;
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sqbtn[data-sq="plain"] {
+      background: var(--bone)
+    }
+
+    .sqbtn[data-sq="DL"] {
+      background: var(--dl);
+      color: #10324A
+    }
+
+    .sqbtn[data-sq="TL"] {
+      background: var(--tl);
+      color: #EAF3FA
+    }
+
+    .sqbtn[data-sq="DW"] {
+      background: var(--dw);
+      color: #4A1414
+    }
+
+    .sqbtn[data-sq="TW"] {
+      background: var(--tw);
+      color: #FBE9E7
+    }
+
+    .sqbtn[aria-pressed="true"] {
+      outline: 3px solid var(--brass);
+      outline-offset: -1px
+    }
+
+    .ctl-extra {
+      display: flex;
+      gap: 6px
+    }
+
+    .toggle {
+      flex: 1;
+      min-height: 40px;
+      border: 1px solid var(--felt-line);
+      border-radius: 8px;
+      background: var(--felt-2);
+      color: var(--bone);
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .toggle[aria-pressed="true"] {
+      background: var(--brass);
+      color: #2A2007;
+      border-color: var(--brass-deep)
+    }
+
+    .toggle.danger[aria-pressed] {}
+
+    .removebtn {
+      flex: 0 0 auto;
+      min-width: 48px;
+      min-height: 40px;
+      border: 1px solid #7A2A22;
+      border-radius: 8px;
+      background: #3A1A16;
+      color: #E8A89F;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 16px
+    }
+
+    /* ---- turn summary ---- */
+    #turnSummary {
+      margin-bottom: 12px
+    }
+
+    .banked {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px
+    }
+
+    .bankrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .bankrow .tiles {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap
+    }
+
+    .bankrow .eq {
+      color: #9DBBA9;
+      font-size: 12px;
+      font-weight: 700;
+      margin-left: auto
+    }
+
+    .totline {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-top: 1px dashed var(--felt-line);
+      padding-top: 9px;
+      margin-top: 2px
+    }
+
+    .totline .lab {
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #9DBBA9
+    }
+
+    .totline .num {
+      font-weight: 800;
+      font-size: 30px;
+      color: var(--brass);
+      font-variant-numeric: tabular-nums
+    }
+
+    .bingoline {
+      font-size: 12px;
+      color: var(--brass);
+      font-weight: 700
+    }
+
+    /* ---- buttons ---- */
+    .btnrow {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px
+    }
+
+    .btn {
+      flex: 1;
+      min-height: 48px;
+      border: 0;
+      border-radius: 10px;
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      letter-spacing: .01em;
+    }
+
+    .btn.primary {
+      background: var(--brass);
+      color: #2A2007;
+      box-shadow: 0 2px 0 var(--brass-deep), 0 5px 12px rgba(0, 0, 0, .3)
+    }
+
+    .btn.primary:active {
+      transform: translateY(1px)
+    }
+
+    .btn.ghost {
+      background: var(--felt-2);
+      color: var(--bone);
+      border: 1px solid var(--felt-line);
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .btn:disabled {
+      opacity: .4;
+      cursor: default;
+      box-shadow: none
+    }
+
+    .smallrow {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .smallrow .btn {
+      min-height: 42px;
+      font-size: 12.5px
+    }
+
+    /* ---- legend ---- */
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: #9DBBA9;
+      margin-top: 4px
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 3px;
+      display: inline-block;
+      border: 1px solid rgba(0, 0, 0, .25)
+    }
+
+    /* ---- history ---- */
+    #historyList {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 230px;
+      overflow: auto
+    }
+
+    .hrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13px;
+      padding: 7px 9px;
+      background: rgba(0, 0, 0, .18);
+      border-radius: 8px
+    }
+
+    .pdot {
+      flex: 0 0 auto;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2A2007
+    }
+
+    .pdot.p0 {
+      background: var(--brass)
+    }
+
+    .pdot.p1 {
+      background: var(--bone);
+      color: var(--ink)
+    }
+
+    .hrow .what {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap
+    }
+
+    .hrow .word {
+      font-weight: 700;
+      letter-spacing: .08em
+    }
+
+    .hrow .note {
+      color: #9DBBA9;
+      font-style: italic
+    }
+
+    .hrow .pts {
+      flex: 0 0 auto;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums
+    }
+
+    .hrow .pts.pos {
+      color: var(--brass)
+    }
+
+    .hrow .pts.neg {
+      color: #E8A89F
+    }
+
+    .hrow .pts.zero {
+      color: #7FA08E
+    }
+
+    .empty-h {
+      color: #7FA08E;
+      font-size: 13px;
+      font-style: italic;
+      text-align: center;
+      padding: 6px
+    }
+
+    /* ---- quick panel ---- */
+    .quickin {
+      width: 100%;
+      font-family: var(--sans);
+      font-weight: 800;
+      font-size: 30px;
+      text-align: center;
+      background: var(--felt-2);
+      color: var(--bone);
+      border: 1px solid var(--felt-line);
+      border-radius: 9px;
+      padding: 10px;
+      margin-bottom: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .quickin:focus {
+      outline: 2px solid var(--brass)
+    }
+
+    /* ---- endgame ---- */
+    .rule {
+      font-size: 12px;
+      color: #9DBBA9;
+      margin-bottom: 12px;
+      line-height: 1.5
+    }
+
+    .egp {
+      margin-bottom: 12px
+    }
+
+    .egp .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px
+    }
+
+    .egp .nm {
+      font-weight: 700;
+      font-size: 14px
+    }
+
+    .egp .sum {
+      font-weight: 800;
+      color: var(--brass);
+      font-variant-numeric: tabular-nums;
+      font-size: 14px
+    }
+
+    .egp .rackin {
+      width: 100%;
+      font-family: var(--sans);
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      background: var(--felt-2);
+      color: var(--bone);
+      border: 1px solid var(--felt-line);
+      border-radius: 8px;
+      padding: 9px 11px;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .egp .rackin::placeholder {
+      letter-spacing: .04em;
+      text-transform: none;
+      font-weight: 600;
+      color: #5E7E6C
+    }
+
+    .egp .rackin:focus {
+      outline: 2px solid var(--brass)
+    }
+
+    .chk {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--bone);
+      cursor: pointer;
+      user-select: none
+    }
+
+    .chk input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--brass)
+    }
+
+    /* ---- winner ---- */
+    #winner {
+      display: none;
+      text-align: center;
+      padding: 6px 0 2px
+    }
+
+    #winner .ww {
+      font-weight: 800;
+      font-size: 24px;
+      color: var(--brass);
+      letter-spacing: .01em
+    }
+
+    #winner .ws {
+      font-size: 13px;
+      color: #9DBBA9;
+      margin-top: 2px
+    }
+
+    footer {
+      text-align: center;
+      margin: 6px 0 8px
+    }
+
+    .linkbtn {
+      background: none;
+      border: 0;
+      color: #7FA08E;
+      font-family: var(--sans);
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px
+    }
+
+    /* ---- phase / mode visibility ---- */
+    #app.phase-endgame #editor,
+    #app.phase-endgame #quickPanel,
+    #app.phase-endgame .modeswitch,
+    #app.phase-endgame #histPanel {
+      display: none
+    }
+
+    #app.phase-finished #editor,
+    #app.phase-finished #quickPanel,
+    #app.phase-finished .modeswitch,
+    #app.phase-finished #endgamePanel {
+      display: none
+    }
+
+    #app:not(.phase-endgame) #endgamePanel {
+      display: none
+    }
+
+    #app:not(.phase-finished) #winner {
+      display: none !important
+    }
+
+    #app.phase-finished #winner {
+      display: block
+    }
+
+    #app.mode-tiles #quickPanel {
+      display: none
+    }
+
+    #app.mode-quick #editor {
+      display: none
+    }
+
+    #app.phase-finished #editor,
+    #app.phase-finished #quickPanel {
+      display: none
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important
+      }
+    }
+
+    @media (max-width:360px) {
+      .tile {
+        width: 42px;
+        height: 46px;
+        font-size: 21px
+      }
+
+      .pl .score {
+        font-size: 36px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="phase-play mode-tiles">
+
+    <header>
+      <div class="wordmark">Til<b>e</b>s</div>
+      <div class="sub">two-player · one device</div>
+    </header>
+
+    <!-- scoreboard -->
+    <div id="scoreboard">
+      <div class="pl" id="pl0" data-player="0">
+        <div class="turnflag">to play</div>
+        <div class="crown">♛</div>
+        <input class="name" id="p0name" maxlength="16" aria-label="Player 1 name">
+        <div class="score" id="p0score">0</div>
+        <div class="delta" id="p0delta"></div>
+      </div>
+      <div class="pl" id="pl1" data-player="1">
+        <div class="turnflag">to play</div>
+        <div class="crown">♛</div>
+        <input class="name" id="p1name" maxlength="16" aria-label="Player 2 name">
+        <div class="score" id="p1score">0</div>
+        <div class="delta" id="p1delta"></div>
+      </div>
+    </div>
+
+    <!-- mode switch -->
+    <div class="smallrow modeswitch" style="margin-bottom:14px">
+      <button class="btn ghost" data-action="mode" data-mode="tiles" id="modeTiles">Build word</button>
+      <button class="btn ghost" data-action="mode" data-mode="quick" id="modeQuick">Quick number</button>
+    </div>
+
+    <!-- tile editor -->
+    <div class="panel" id="editor">
+      <h2>This turn — <span id="turnName">Player 1</span></h2>
+      <div class="tilerow" id="wordRow"></div>
+      <input class="wordin" id="wordInput" placeholder="type the word…" autocomplete="off" autocapitalize="characters"
+        spellcheck="false" inputmode="text">
+      <div id="controlBar"></div>
+      <div id="turnSummary"></div>
+
+      <div class="btnrow">
+        <button class="btn ghost" data-action="addword" id="addWordBtn">+ Add word</button>
+        <button class="btn ghost toggle" data-action="bingo" id="bingoBtn" aria-pressed="false">Bonus +50</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" data-action="score" id="scoreBtn">Score turn</button>
+      </div>
+      <div class="smallrow">
+        <button class="btn ghost" data-action="pass">Pass</button>
+        <button class="btn ghost" data-action="swap">Swap tiles</button>
+        <button class="btn ghost" data-action="undo">Undo last</button>
+      </div>
+      <div class="legend">
+        <span><i class="swatch" style="background:var(--dl)"></i>double letter</span>
+        <span><i class="swatch" style="background:var(--tl)"></i>triple letter</span>
+        <span><i class="swatch" style="background:var(--dw)"></i>double word</span>
+        <span><i class="swatch" style="background:var(--tw)"></i>triple word</span>
+      </div>
+    </div>
+
+    <!-- quick number editor -->
+    <div class="panel" id="quickPanel">
+      <h2>This turn — <span id="turnNameQ">Player 1</span></h2>
+      <input class="quickin" id="quickInput" type="number" inputmode="numeric" placeholder="0" min="0">
+      <div class="btnrow">
+        <button class="btn ghost toggle" data-action="bingoQ" id="bingoBtnQ" aria-pressed="false">Bonus +50</button>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" data-action="scoreQ">Score turn</button>
+      </div>
+      <div class="smallrow">
+        <button class="btn ghost" data-action="pass">Pass</button>
+        <button class="btn ghost" data-action="swap">Swap tiles</button>
+        <button class="btn ghost" data-action="undo">Undo last</button>
+      </div>
+    </div>
+
+    <!-- history -->
+    <div class="panel" id="histPanel">
+      <h2>Scoresheet</h2>
+      <div id="historyList"></div>
+    </div>
+
+    <!-- endgame -->
+    <div class="panel" id="endgamePanel">
+      <h2>Finish the game</h2>
+      <div class="rule">Type the tiles left on each rack. Whoever empties their rack <b>gains</b> the value of the
+        other's leftover tiles; everyone <b>subtracts</b> their own.</div>
+      <div class="egp">
+        <div class="top"><span class="nm" id="eg0name">Player 1</span><span class="sum" id="eg0sum">−0</span></div>
+        <input class="rackin" id="rack0" placeholder="leftover letters, e.g. QKV" autocomplete="off"
+          autocapitalize="characters" spellcheck="false">
+        <label class="chk"><input type="checkbox" id="out0"> emptied their rack</label>
+      </div>
+      <div class="egp">
+        <div class="top"><span class="nm" id="eg1name">Player 2</span><span class="sum" id="eg1sum">−0</span></div>
+        <input class="rackin" id="rack1" placeholder="leftover letters, e.g. EIO" autocomplete="off"
+          autocapitalize="characters" spellcheck="false">
+        <label class="chk"><input type="checkbox" id="out1"> emptied their rack</label>
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" data-action="finish">Apply &amp; finish</button>
+      </div>
+      <div class="smallrow">
+        <button class="btn ghost" data-action="cancelEnd">Back to game</button>
+      </div>
+    </div>
+
+    <!-- winner -->
+    <div id="winner">
+      <div class="ww" id="winnerName">—</div>
+      <div class="ws" id="winnerSub"></div>
+      <div class="btnrow" style="margin-top:12px">
+        <button class="btn primary" data-action="newgame">New game</button>
+        <button class="btn ghost" data-action="undo">Undo result</button>
+      </div>
+    </div>
+
+    <footer>
+      <button class="linkbtn" data-action="endgame" id="endLink">End game &amp; tally racks</button>
+      &nbsp;·&nbsp;
+      <button class="linkbtn" data-action="newgame">New game</button>
+    </footer>
+
+  </div>
+
+  <script>
+    "use strict";
+
+    /* English tile values */
+    const BASE = {E: 1, A: 1, I: 1, O: 1, N: 1, R: 1, T: 1, L: 1, S: 1, U: 1, D: 2, G: 2, B: 3, C: 3, M: 3, P: 3, F: 4, H: 4, V: 4, W: 4, Y: 4, K: 5, J: 8, X: 8, Q: 10, Z: 10};
+    const STORE_KEY = "scrabble:game";
+
+    /* ---------- state ---------- */
+    function freshState(names) {
+      return {
+        players: [{name: names ? names[0] : "Player 1", score: 0}, {name: names ? names[1] : "Player 2", score: 0}],
+        current: 0, mode: "tiles", phase: "play",
+        tiles: [], banked: [], bingo: false, selected: null,
+        history: []
+      };
+    }
+    let S = freshState();
+
+    /* ---------- scoring ---------- */
+    const letterVal = t => t.isBlank ? 0 : (BASE[t.letter] || 0) * (t.square === "DL" ? 2 : t.square === "TL" ? 3 : 1);
+    const wordMult = ts => ts.reduce((m, t) => t.square === "DW" ? m * 2 : t.square === "TW" ? m * 3 : m, 1);
+    const wordScore = ts => ts.length ? ts.reduce((s, t) => s + letterVal(t), 0) * wordMult(ts) : 0;
+    function turnTotal() {
+      let s = S.banked.reduce((a, w) => a + wordScore(w), 0) + wordScore(S.tiles);
+      if (S.bingo) s += 50;
+      return s;
+    }
+    function rackSum(str) {
+      return (str.toUpperCase().match(/[A-Z]/g) || []).reduce((a, c) => a + (BASE[c] || 0), 0);
+    }
+
+    /* ---------- persistence ---------- */
+    async function save() {
+      try {if (window.storage) await window.storage.set(STORE_KEY, JSON.stringify(S));}
+      catch (e) { /* in-memory fallback */}
+    }
+    async function load() {
+      try {
+        if (!window.storage) return;
+        const r = await window.storage.get(STORE_KEY);
+        if (r && r.value) {
+          const d = JSON.parse(r.value);
+          S = Object.assign(freshState(), d);
+          S.tiles ||= []; S.banked ||= []; S.history ||= [];
+        }
+      } catch (e) { /* no saved game */}
+    }
+
+    /* ---------- tile html ---------- */
+    function tileHTML(t, opts) {
+      opts = opts || {};
+      const cls = ["tile"];
+      if (opts.mini) cls.push("mini");
+      if (t.square && t.square !== "plain") cls.push("sq-" + t.square);
+      if (t.isBlank) cls.push("blank");
+      if (opts.sel) cls.push("sel");
+      const tag = opts.btn ? "button" : "span";
+      const idx = opts.btn ? `data-action="seltile" data-index="${opts.index}"` : "";
+      const aria = opts.btn ? `aria-label="${t.letter}, ${t.isBlank ? 0 : (BASE[t.letter] || 0)} points"` : "";
+      return `<${tag} class="${cls.join(' ')}" ${idx} ${aria}><span>${t.letter}</span><span class="val">${t.isBlank ? 0 : (BASE[t.letter] || 0)}</span></${tag}>`;
+    }
+
+    /* ---------- renderers ---------- */
+    function renderScores() {
+      S.players.forEach((p, i) => {
+        document.getElementById("p" + i + "score").textContent = p.score;
+        document.getElementById("pl" + i).classList.toggle("active", S.current === i && S.phase !== "finished");
+      });
+      // leader crown
+      const lead = S.players[0].score === S.players[1].score ? -1 : (S.players[0].score > S.players[1].score ? 0 : 1);
+      document.getElementById("pl0").classList.toggle("lead", lead === 0);
+      document.getElementById("pl1").classList.toggle("lead", lead === 1);
+      // last delta per player
+      [0, 1].forEach(i => {
+        const last = [...S.history].reverse().find(h => h.affects ? h.affects.includes(i) : h.player === i);
+        const el = document.getElementById("p" + i + "delta");
+        if (last) {
+          const d = last.deltas ? last.deltas[i] : (last.player === i ? last.points : 0);
+          el.textContent = (d >= 0 ? "+" : "") + d + " last";
+          el.classList.add("show");
+        } else {el.classList.remove("show");}
+      });
+    }
+
+    function renderEditor() {
+      const nm = S.players[S.current].name;
+      document.getElementById("turnName").textContent = nm;
+      document.getElementById("turnNameQ").textContent = nm;
+      renderTiles(); renderControls(); renderSummary();
+      document.getElementById("bingoBtn").setAttribute("aria-pressed", S.bingo);
+      document.getElementById("bingoBtnQ").setAttribute("aria-pressed", S.bingo);
+    }
+
+    function renderTiles() {
+      const row = document.getElementById("wordRow");
+      if (!S.tiles.length) {row.innerHTML = '<span class="empty">tiles appear here as you type</span>'; return;}
+      row.innerHTML = S.tiles.map((t, i) => tileHTML(t, {btn: true, index: i, sel: S.selected === i})).join("");
+    }
+
+    function renderControls() {
+      const bar = document.getElementById("controlBar");
+      if (S.selected === null || !S.tiles[S.selected]) {
+        bar.innerHTML = '<div class="ctl-hint">Tap a tile to place it on a premium square</div>';
+        return;
+      }
+      const t = S.tiles[S.selected];
+      const sqs = [["plain", "·"], ["DL", "DL"], ["TL", "TL"], ["DW", "DW"], ["TW", "TW"]];
+      bar.innerHTML = `
+    <div class="ctl-wrap">
+      <div class="ctl-label">Square under <b>${t.letter}</b></div>
+      <div class="ctl-btns">
+        ${sqs.map(([s, l]) => `<button class="sqbtn" data-action="setsq" data-sq="${s}" aria-pressed="${t.square === s || (s === 'plain' && !t.square)}">${l}</button>`).join("")}
+      </div>
+      <div class="ctl-extra">
+        <button class="toggle" data-action="blank" aria-pressed="${!!t.isBlank}">Blank (0 pts)</button>
+        <button class="removebtn" data-action="removetile" aria-label="remove tile">✕</button>
+      </div>
+    </div>`;
+    }
+
+    function renderSummary() {
+      const el = document.getElementById("turnSummary");
+      const rows = S.banked.map(w => (
+        `<div class="bankrow"><div class="tiles">${w.map(t => tileHTML(t, {mini: true})).join("")}</div><span class="eq">= ${wordScore(w)}</span></div>`
+      ));
+      if (S.tiles.length) {
+        rows.push(`<div class="bankrow"><div class="tiles">${S.tiles.map(t => tileHTML(t, {mini: true})).join("")}</div><span class="eq">= ${wordScore(S.tiles)}</span></div>`);
+      }
+      const bingo = S.bingo ? `<div class="bingoline">All-tiles bonus +50</div>` : "";
+      el.innerHTML = `
+    <div class="banked">${rows.join("")}</div>
+    ${bingo}
+    <div class="totline"><span class="lab">Turn total</span><span class="num">${turnTotal()}</span></div>`;
+      const empty = !S.banked.length && !S.tiles.length;
+      document.getElementById("scoreBtn").disabled = false; // 0 is allowed (acts as a pass)
+      document.getElementById("addWordBtn").disabled = !S.tiles.length;
+    }
+
+    function renderHistory() {
+      const el = document.getElementById("historyList");
+      if (!S.history.length) {el.innerHTML = '<div class="empty-h">No moves yet</div>'; return;}
+      el.innerHTML = [...S.history].reverse().map(h => {
+        if (h.type === "endgame") {
+          return `<div class="hrow"><span class="pdot p0" style="background:var(--felt-line);color:var(--bone)">⚑</span>
+        <span class="what"><span class="note">Final rack tally</span></span>
+        <span class="pts ${h.deltas[0] + h.deltas[1] >= 0 ? 'pos' : 'neg'}">${h.deltas.map((d, i) => `${S.players[i].name.split(' ')[0]} ${(d >= 0 ? '+' : '') + d}`).join(' · ')}</span></div>`;
+        }
+        const pcls = "p" + h.player;
+        const pini = (S.players[h.player].name.trim()[0] || (h.player + 1)).toUpperCase();
+        let what;
+        if (h.type === "word") {
+          const tilesHTML = (h.words || []).map(w => `<span class="tiles" style="display:inline-flex;gap:2px">${w.map(t => tileHTML(t, {mini: true})).join("")}</span>`).join(' <span class="note">+</span> ');
+          what = tilesHTML + (h.bingo ? ' <span class="note">+50</span>' : '');
+        } else if (h.type === "pass") {what = '<span class="note">passed</span>';}
+        else if (h.type === "swap") {what = '<span class="note">swapped tiles</span>';}
+        else {what = '<span class="note">' + (h.label || 'move') + '</span>';}
+        const cls = h.points > 0 ? 'pos' : (h.points < 0 ? 'neg' : 'zero');
+        return `<div class="hrow"><span class="pdot ${pcls}">${pini}</span>
+      <span class="what">${what}</span>
+      <span class="pts ${cls}">${(h.points >= 0 ? '+' : '') + h.points}</span></div>`;
+      }).join("");
+    }
+
+    function renderEndgame() {
+      document.getElementById("eg0name").textContent = S.players[0].name;
+      document.getElementById("eg1name").textContent = S.players[1].name;
+      [0, 1].forEach(i => {
+        const v = document.getElementById("rack" + i).value;
+        document.getElementById("eg" + i + "sum").textContent = "−" + rackSum(v);
+      });
+    }
+
+    function renderWinner() {
+      const a = S.players[0].score, b = S.players[1].score;
+      const w = document.getElementById("winnerName"), s = document.getElementById("winnerSub");
+      if (a === b) {w.textContent = "Dead heat — " + a + " all"; s.textContent = "A draw. Rare and slightly unsatisfying.";}
+      else {
+        const win = a > b ? 0 : 1;
+        w.textContent = S.players[win].name + " wins";
+        s.textContent = `${Math.max(a, b)} to ${Math.min(a, b)} · margin ${Math.abs(a - b)}`;
+      }
+    }
+
+    function renderPhase() {
+      const app = document.getElementById("app");
+      app.classList.toggle("phase-play", S.phase === "play");
+      app.classList.toggle("phase-endgame", S.phase === "endgame");
+      app.classList.toggle("phase-finished", S.phase === "finished");
+      app.classList.toggle("mode-tiles", S.mode === "tiles");
+      app.classList.toggle("mode-quick", S.mode === "quick");
+      document.getElementById("modeTiles").style.outline = S.mode === "tiles" ? "2px solid var(--brass)" : "none";
+      document.getElementById("modeQuick").style.outline = S.mode === "quick" ? "2px solid var(--brass)" : "none";
+    }
+
+    function renderAll() {
+      renderPhase(); renderScores();
+      if (S.phase === "play") renderEditor();
+      renderHistory();
+      if (S.phase === "endgame") renderEndgame();
+      if (S.phase === "finished") renderWinner();
+    }
+
+    /* ---------- word input reconciliation ---------- */
+    function reconcileWord(value) {
+      const letters = (value.toUpperCase().match(/[A-Z]/g) || []);
+      const next = letters.map((ch, i) => {
+        const old = S.tiles[i];
+        return (old && old.letter === ch) ? old : {letter: ch, square: "plain", isBlank: false};
+      });
+      S.tiles = next;
+      if (S.selected !== null && S.selected >= S.tiles.length) S.selected = null;
+    }
+
+    /* ---------- turn commits ---------- */
+    function advance() {S.current = S.current === 0 ? 1 : 0;}
+
+    function commitWord() {
+      const words = [...S.banked, S.tiles].filter(w => w.length);
+      const pts = words.reduce((a, w) => a + wordScore(w), 0) + (S.bingo ? 50 : 0);
+      S.history.push({
+        type: "word", player: S.current, points: pts, bingo: S.bingo,
+        words: words.map(w => w.map(t => ({letter: t.letter, square: t.square, isBlank: t.isBlank})))
+      });
+      S.players[S.current].score += pts;
+      clearEditor(); advance(); afterCommit();
+    }
+    function commitQuick() {
+      const raw = parseInt(document.getElementById("quickInput").value, 10);
+      const base = isNaN(raw) ? 0 : Math.max(0, raw);
+      const pts = base + (S.bingo ? 50 : 0);
+      S.history.push({type: "word", player: S.current, points: pts, bingo: S.bingo, words: []});
+      S.players[S.current].score += pts;
+      document.getElementById("quickInput").value = "";
+      S.bingo = false; advance(); afterCommit();
+    }
+    function commitSimple(type, label) {
+      S.history.push({type, player: S.current, points: 0, label});
+      advance(); afterCommit();
+    }
+    function clearEditor() {
+      S.tiles = []; S.banked = []; S.bingo = false; S.selected = null;
+      document.getElementById("wordInput").value = "";
+    }
+    function afterCommit() {renderAll(); save();}
+
+    function undo() {
+      const h = S.history.pop();
+      if (!h) {return;}
+      if (h.type === "endgame") {
+        h.deltas.forEach((d, i) => S.players[i].score -= d);
+        S.phase = "play";
+        S.current = (h.prevCurrent !== undefined) ? h.prevCurrent : S.current;
+      } else {
+        S.players[h.player].score -= h.points;
+        S.current = h.player;
+        if (S.phase === "finished") S.phase = "play";
+      }
+      renderAll(); save();
+    }
+
+    /* ---------- endgame ---------- */
+    function finishGame() {
+      const l0 = rackSum(document.getElementById("rack0").value);
+      const l1 = rackSum(document.getElementById("rack1").value);
+      const out0 = document.getElementById("out0").checked;
+      const out1 = document.getElementById("out1").checked;
+      let d0 = -l0, d1 = -l1;
+      // only one player can be "out"; if exactly one, they collect the other's leftovers
+      if (out0 && !out1) d0 += l1;
+      if (out1 && !out0) d1 += l0;
+      const prevCurrent = S.current;
+      S.players[0].score += d0; S.players[1].score += d1;
+      S.history.push({type: "endgame", deltas: [d0, d1], affects: [0, 1], prevCurrent});
+      S.phase = "finished";
+      renderAll(); save();
+    }
+
+    /* ---------- events ---------- */
+    document.getElementById("app").addEventListener("click", (e) => {
+      const el = e.target.closest("[data-action]");
+      if (!el) return;
+      const a = el.dataset.action;
+      switch (a) {
+        case "mode":
+          S.mode = el.dataset.mode; renderAll(); save();
+          if (S.mode === "quick") setTimeout(() => document.getElementById("quickInput").focus(), 0);
+          else setTimeout(() => document.getElementById("wordInput").focus(), 0);
+          break;
+        case "seltile": {
+          const i = +el.dataset.index;
+          S.selected = (S.selected === i) ? null : i;
+          renderTiles(); renderControls();
+          break;
+        }
+        case "setsq":
+          if (S.selected !== null) {S.tiles[S.selected].square = el.dataset.sq; renderTiles(); renderControls(); renderSummary(); save();}
+          break;
+        case "blank":
+          if (S.selected !== null) {const t = S.tiles[S.selected]; t.isBlank = !t.isBlank; renderTiles(); renderControls(); renderSummary(); save();}
+          break;
+        case "removetile":
+          if (S.selected !== null) {
+            S.tiles.splice(S.selected, 1); S.selected = null;
+            document.getElementById("wordInput").value = S.tiles.map(t => t.letter).join("");
+            renderTiles(); renderControls(); renderSummary(); save();
+          }
+          break;
+        case "addword":
+          if (S.tiles.length) {
+            S.banked.push(S.tiles); S.tiles = []; S.selected = null;
+            document.getElementById("wordInput").value = "";
+            renderEditor(); save();
+            setTimeout(() => document.getElementById("wordInput").focus(), 0);
+          }
+          break;
+        case "bingo":
+        case "bingoQ":
+          S.bingo = !S.bingo; renderEditor(); save();
+          break;
+        case "score": commitWord(); break;
+        case "scoreQ": commitQuick(); break;
+        case "pass": commitSimple("pass", "Passed"); break;
+        case "swap": commitSimple("swap", "Swapped tiles"); break;
+        case "undo": undo(); break;
+        case "endgame":
+          S.phase = "endgame"; renderAll(); save();
+          setTimeout(() => document.getElementById("rack0").focus(), 0);
+          break;
+        case "cancelEnd":
+          S.phase = "play"; renderAll(); save(); break;
+        case "finish": finishGame(); break;
+        case "newgame":
+          if (confirm("Start a new game? Scores and scoresheet will be cleared (names kept).")) {
+            S = freshState([S.players[0].name, S.players[1].name]);
+            document.getElementById("wordInput").value = "";
+            document.getElementById("quickInput").value = "";
+            document.getElementById("rack0").value = ""; document.getElementById("rack1").value = "";
+            document.getElementById("out0").checked = false; document.getElementById("out1").checked = false;
+            renderAll(); save();
+          }
+          break;
+      }
+    });
+
+    /* word input typing — does NOT re-render the input itself */
+    document.getElementById("wordInput").addEventListener("input", (e) => {
+      reconcileWord(e.target.value);
+      renderTiles(); renderControls(); renderSummary(); save();
+    });
+
+    /* names */
+    [0, 1].forEach(i => {
+      document.getElementById("p" + i + "name").addEventListener("input", (e) => {
+        S.players[i].name = e.target.value || ("Player " + (i + 1));
+        document.getElementById("turnName").textContent = S.players[S.current].name;
+        document.getElementById("turnNameQ").textContent = S.players[S.current].name;
+        save();
+      });
+    });
+
+    /* endgame rack live sums */
+    [0, 1].forEach(i => {
+      document.getElementById("rack" + i).addEventListener("input", renderEndgame);
+    });
+
+    /* ---------- boot ---------- */
+    (async function () {
+      await load();
+      document.getElementById("p0name").value = S.players[0].name;
+      document.getElementById("p1name").value = S.players[1].name;
+      if (S.mode === "quick" && S.bingo) document.getElementById("bingoBtnQ").setAttribute("aria-pressed", true);
+      renderAll();
+    })();
+  </script>
+</body>
+
+</html>
