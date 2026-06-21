@@ -20,11 +20,10 @@ flowchart TD
   M4(["`**Milestone 4**<br/>Rivalry`"]):::mile
   M5(["`**Milestone 5**<br/>Polish`"]):::mile
 
-  1FN1["`*1FN.1*<br/>**FN**<br/>Scaffold SvelteKit app`"]:::open
-  1FN2["`*1FN.2*<br/>**FN**<br/>Module contract`"]
+  1FN2["`*1FN.2*<br/>**FN**<br/>Module contract`"]:::open
   1FN3["`*1FN.3*<br/>**FN**<br/>Auto-discovery + registry`"]
-  1FN4["`*1FN.4*<br/>**FN**<br/>Themeable design system`"]
-  1FN5["`*1FN.5*<br/>**FN**<br/>PWA + mobile-first baseline`"]
+  1FN4["`*1FN.4*<br/>**FN**<br/>Themeable design system`"]:::open
+  1FN5["`*1FN.5*<br/>**FN**<br/>PWA + mobile-first baseline`"]:::open
 
   2MOD1["`*2MOD.1*<br/>**MOD**<br/>Port Grumble`"]
   2MOD2["`*2MOD.2*<br/>**MOD**<br/>Port Tiles`"]
@@ -32,7 +31,7 @@ flowchart TD
   2MOD4["`*2MOD.4*<br/>**MOD**<br/>Port Reckoner`"]
   2MOD5["`*2MOD.5*<br/>**MOD**<br/>Port Baby Name Chooser`"]
 
-  3BE1["`*3BE.1*<br/>**BE**<br/>Provision Supabase`"]
+  3BE1["`*3BE.1*<br/>**BE**<br/>Provision Supabase`"]:::open
   3BE2["`*3BE.2*<br/>**BE**<br/>Design schema`"]
   3BE3["`*3BE.3*<br/>**BE**<br/>Auth + profiles + RLS`"]
   3BE4["`*3BE.4*<br/>**BE**<br/>Claude proxy`"]
@@ -48,11 +47,9 @@ flowchart TD
   5PL2["`*5PL.2*<br/>**PL**<br/>PWA hardening`"]
   5PL3["`*5PL.3*<br/>**PL**<br/>Design polish pass`"]
 
-  M1 --> 1FN1
-  1FN1 --> 1FN2
-  1FN1 --> 1FN4
-  1FN1 --> 1FN5
-  1FN1 --> 3BE1
+  M1 --> 1FN2
+  M1 --> 1FN4
+  M1 --> 1FN5
   1FN2 --> 1FN3
   1FN2 --> 2MOD1
   1FN2 --> 2MOD2
@@ -108,11 +105,14 @@ flowchart TD
 
 ### To Do
 
-- [ ] 1FN.1. Scaffold SvelteKit + Svelte 5 + Bun monorepo app (adapter-vercel)
 - [ ] 1FN.2. Define the module contract (manifest: id, name, category, icon, routes, theme, results-shape) — **depends on 1FN.1**
 - [ ] 1FN.3. Build module auto-discovery + registry (filesystem-derived, category-aware) — **depends on 1FN.2**
 - [ ] 1FN.4. Establish themeable design system (Reasonable Colors base, swappable tokens, shared components, module-selectable palettes) — **depends on 1FN.1**
 - [ ] 1FN.5. PWA + mobile-first baseline (manifest, installable, responsive shell, big touch targets) — **depends on 1FN.1**
+
+### Completed
+
+- [x] 1FN.1. Scaffold SvelteKit + Svelte 5 + Bun app (adapter-vercel) — single flat app at repo root, Reasonable Colors base, module directory skeleton
 
 ---
 
