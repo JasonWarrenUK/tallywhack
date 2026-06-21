@@ -1,0 +1,59 @@
+@import 'reasonable-colors/reasonable-colors.css';
+
+/* Semantic aliases — components use these, never raw Reasonable Colors vars directly */
+:root {
+	--color-primary: var(--color-azure-3);
+	--color-primary-bg: var(--color-azure-1);
+	--color-primary-text: var(--color-azure-6);
+	--color-surface: var(--color-gray-1);
+	--color-on-surface: var(--color-gray-6);
+	--color-muted: var(--color-gray-3);
+
+	/* Typography — system stack until 1FN.4 defines the real font choices */
+	--font-sans: system-ui, -apple-system, sans-serif;
+	--font-mono: ui-monospace, 'Cascadia Code', monospace;
+
+	/* Spacing scale */
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-6: 24px;
+	--space-8: 32px;
+
+	/* Border radii */
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 16px;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--color-surface);
+	color: var(--color-on-surface);
+	font-family: var(--font-sans);
+	/* Mobile-first: readable line length, comfortable text size */
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+/* Accessible focus styles */
+:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+}
+
+/* Respect motion preferences */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition: none !important;
+		animation: none !important;
+	}
+}
