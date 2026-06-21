@@ -105,13 +105,13 @@ flowchart TD
 
 ### To Do
 
-- [ ] 1FN.2. Define the module contract (manifest: id, name, category, icon, routes, theme, results-shape) — **depends on 1FN.1**
-- [ ] 1FN.3. Build module auto-discovery + registry (filesystem-derived, category-aware) — **depends on 1FN.2**
 - [ ] 1FN.4. Establish themeable design system (Reasonable Colors base, swappable tokens, shared components, module-selectable palettes) — **depends on 1FN.1**
 - [ ] 1FN.5. PWA + mobile-first baseline (manifest, installable, responsive shell, big touch targets) — **depends on 1FN.1**
 
 ### Completed
 
+- [x] 1FN.3. Build module auto-discovery + registry (filesystem-derived, category-aware) — **depends on 1FN.2**
+- [x] 1FN.2. Define the module contract (manifest: id, name, category, icon, routes, theme, results-shape) — **depends on 1FN.1**
 - [x] 1FN.1. Scaffold SvelteKit + Svelte 5 + Bun app (adapter-vercel) — single flat app at repo root, Reasonable Colors base, module directory skeleton
 
 ---
