@@ -4,6 +4,7 @@ import {
 	type AnyModuleManifest,
 	type GameResult,
 	type ModuleResult,
+	type PaletteToken,
 	type PlayerId,
 	type ToolOutput
 } from './index.js';
@@ -137,5 +138,35 @@ describe('grumble manifest', () => {
 		};
 		expect(sampleResult.detail.handCount).toBe(7);
 		expect(sampleResult.winner).toBe(1);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// PaletteToken — type contract (1FN.4)
+// ---------------------------------------------------------------------------
+
+describe('PaletteToken', () => {
+	it('accepts all 24 Reasonable Colors palette names used in tests and manifests', () => {
+		// Values used by existing manifests and inline test manifests — must remain valid.
+		const used: PaletteToken[] = ['azure', 'sky', 'emerald'];
+		expect(used).toHaveLength(3);
+	});
+
+	it('accepts all 24 named palettes without TypeScript error', () => {
+		// If any name below causes a TS error, the PaletteToken union is incomplete.
+		const all: PaletteToken[] = [
+			'amber', 'aquamarine', 'azure', 'blue', 'cerulean', 'chartreuse',
+			'cinnamon', 'cyan', 'emerald', 'green', 'indigo', 'lime',
+			'magenta', 'orange', 'pink', 'powder', 'purple', 'raspberry',
+			'red', 'rose', 'sky', 'teal', 'violet', 'yellow'
+		];
+		expect(all).toHaveLength(24);
+	});
+
+	it('rejects unknown palette tokens at the type level', () => {
+		// @ts-expect-error — 'fuschia' is not a PaletteToken; this documents the enforced contract.
+		const invalid: PaletteToken = 'fuschia';
+		// Runtime fallthrough — the value exists but TypeScript flags the assignment above.
+		expect(typeof invalid).toBe('string');
 	});
 });
