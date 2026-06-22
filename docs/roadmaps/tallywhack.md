@@ -24,6 +24,7 @@ flowchart TD
 
   2MOD4["`*2MOD.4*<br/>**MOD**<br/>Port Reckoner`"]:::open
   2MOD5["`*2MOD.5*<br/>**MOD**<br/>Port Baby Name Chooser`"]:::open
+  2MOD6["`*2MOD.6*<br/>**MOD**<br/>Investigate deterministic name sourcing`"]:::blocked
 
   3BE1["`*3BE.1*<br/>**BE**<br/>Provision Supabase`"]:::open
   3BE2["`*3BE.2*<br/>**BE**<br/>Design schema`"]
@@ -48,6 +49,9 @@ flowchart TD
   2MOD4 --> 3BE2
   2MOD5 --> 3BE2
   2MOD5 --> 3BE4
+  2MOD5 --> 2MOD6
+  3BE4 --> 2MOD6
+  2MOD6 --> 5PL3
 
   M3 --> 3BE1
   3BE1 --> 3BE2
@@ -98,11 +102,12 @@ flowchart TD
 
 ### To Do
 
-- [ ] 2MOD.4. Port Reckoner (group ranking/decision tool) into the module system — **depends on 1FN.2, 1FN.3, 1FN.4** (all ✓)
-- [ ] 2MOD.5. Port Baby Name Chooser — UI to Svelte, Claude calls moved to SvelteKit server route — **depends on 1FN.2, 1FN.3, 1FN.4** (all ✓)
+- [ ] 2MOD.6. Investigate deterministic name+meaning sourcing — explore whether names and meanings can be derived at least partially from non-AI APIs (e.g. BabyNames.com, MerriamWebster, BehindTheName), with LLM involvement targeted at (a) refining API queries from taste-profile feedback and (b) reconciling two users' differing taste profiles at the shared-list stage. Reduces latency and API cost for the examples phase. — **depends on 2MOD.5, 3BE.4 → feeds 5PL.3**
 
 ### Completed
 
+- [x] 2MOD.5. Port Baby Name Chooser — two-person async model (separate prefs + taste swipes per person, combined consensus profile, shared shortlist), Claude calls via `@anthropic-ai/sdk` server route (`/tools/baby-name/api`), `zodOutputFormat` structured output, persisted to localStorage
+- [x] 2MOD.4. Port Reckoner (group ranking/decision tool) — N participants (2–8), 5-tier cap algorithm, consensus-floor ranking, 1–3 optional categories, fixed results-filter bug (stable category ids, not array index), localStorage persistence
 - [x] 2MOD.3. Build Sushi Go! scorer — full auto-scoring engine, maki ties, set bonuses, wasabi/nigiri, pudding carry-over + tiebreaker, draw detection (`winner: null`)
 - [x] 2MOD.2. Port Tiles (Scrabble scorer) from single-file HTML to Svelte module — tile/quick mode, caret-preserving input, end-game rack adjustment, draw support
 - [x] 2MOD.1. Port Grumble (Gin Rummy scorer) into the module system — full scoring pipeline, persistence, multi-game match tracking
