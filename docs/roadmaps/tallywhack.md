@@ -24,6 +24,7 @@ flowchart TD
 
   2MOD4["`*2MOD.4*<br/>**MOD**<br/>Port Reckoner`"]:::open
   2MOD5["`*2MOD.5*<br/>**MOD**<br/>Port Baby Name Chooser`"]:::open
+  2MOD6["`*2MOD.6*<br/>**MOD**<br/>Investigate deterministic name sourcing`"]:::blocked
 
   3BE1["`*3BE.1*<br/>**BE**<br/>Provision Supabase`"]:::open
   3BE2["`*3BE.2*<br/>**BE**<br/>Design schema`"]
@@ -48,6 +49,9 @@ flowchart TD
   2MOD4 --> 3BE2
   2MOD5 --> 3BE2
   2MOD5 --> 3BE4
+  2MOD5 --> 2MOD6
+  3BE4 --> 2MOD6
+  2MOD6 --> 5PL3
 
   M3 --> 3BE1
   3BE1 --> 3BE2
@@ -95,6 +99,10 @@ flowchart TD
 ## Milestone 2 — Modules
 
 > All five modules ported to the stack and working locally (no DB yet). Each conforms to the module contract.
+
+### To Do
+
+- [ ] 2MOD.6. Investigate deterministic name+meaning sourcing — explore whether names and meanings can be derived at least partially from non-AI APIs (e.g. BabyNames.com, MerriamWebster, BehindTheName), with LLM involvement targeted at (a) refining API queries from taste-profile feedback and (b) reconciling two users' differing taste profiles at the shared-list stage. Reduces latency and API cost for the examples phase. — **depends on 2MOD.5, 3BE.4 → feeds 5PL.3**
 
 ### Completed
 
