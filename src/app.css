@@ -16,6 +16,11 @@
 	--color-surface: var(--color-gray-1);
 	--color-on-surface: var(--color-gray-6);
 	--color-muted: var(--color-gray-3);
+	/* Slightly elevated surface for panels/cards above the page background */
+	--color-surface-raised: var(--color-gray-2);
+	/* Danger/destructive actions — palette-independent */
+	--color-danger: var(--color-red-3);
+	--color-danger-text: var(--color-red-6);
 
 	/* Typography — system stack (1FN.4b will formalise the real font choices) */
 	--font-sans: system-ui, -apple-system, sans-serif;

@@ -23,10 +23,20 @@ export type PlayerId = 0 | 1;
  *
  * Every game guarantees this shape; individual game detail lives in the
  * generic `Detail` parameter of `GameResult`.
+ *
+ * BREAKING (1FN.4): `winner` is now `PlayerId | null`. `null` represents a
+ * genuine draw — i.e. a tie that survived all game-specific tiebreakers.
+ * Games that define a tiebreaker (e.g. Sushi Go! uses pudding count) must
+ * exhaust it before returning `null`. Games with no tiebreaker (e.g. Tiles)
+ * return `null` immediately on an equal final score. Gin Rummy cannot draw
+ * (a running total always reaches the game target first), so it always
+ * returns a `PlayerId`.
+ *
+ * Rivalry code (4RIV.*) must handle `null` explicitly when computing records.
  */
 export interface GameResultCore {
-	/** The player who won this game. */
-	winner: PlayerId;
+	/** The player who won this game, or `null` if the game was a genuine draw. */
+	winner: PlayerId | null;
 	/** Final comparable totals per player. Keyed by PlayerId, not an array. */
 	scores: Record<PlayerId, number>;
 	/** Display names per player. */
