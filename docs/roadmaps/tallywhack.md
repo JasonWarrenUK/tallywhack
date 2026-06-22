@@ -20,14 +20,10 @@ flowchart TD
   M4(["`**Milestone 4**<br/>Rivalry`"]):::mile
   M5(["`**Milestone 5**<br/>Polish`"]):::mile
 
-  1FN4["`*1FN.4*<br/>**FN**<br/>Themeable design system`"]
   1FN5["`*1FN.5*<br/>**FN**<br/>PWA + mobile-first baseline`"]:::open
 
-  2MOD1["`*2MOD.1*<br/>**MOD**<br/>Port Grumble`"]
-  2MOD2["`*2MOD.2*<br/>**MOD**<br/>Port Tiles`"]
-  2MOD3["`*2MOD.3*<br/>**MOD**<br/>Build Sushi Go!`"]
-  2MOD4["`*2MOD.4*<br/>**MOD**<br/>Port Reckoner`"]
-  2MOD5["`*2MOD.5*<br/>**MOD**<br/>Port Baby Name Chooser`"]
+  2MOD4["`*2MOD.4*<br/>**MOD**<br/>Port Reckoner`"]:::open
+  2MOD5["`*2MOD.5*<br/>**MOD**<br/>Port Baby Name Chooser`"]:::open
 
   3BE1["`*3BE.1*<br/>**BE**<br/>Provision Supabase`"]:::open
   3BE2["`*3BE.2*<br/>**BE**<br/>Design schema`"]
@@ -45,20 +41,10 @@ flowchart TD
   5PL2["`*5PL.2*<br/>**PL**<br/>PWA hardening`"]
   5PL3["`*5PL.3*<br/>**PL**<br/>Design polish pass`"]
 
-  M1 --> 1FN4
   M1 --> 1FN5
-  1FN4 --> 2MOD1
-  1FN4 --> 2MOD2
-  1FN4 --> 2MOD3
-  1FN4 --> 2MOD4
-  1FN4 --> 2MOD5
-  1FN4 --> 5PL3
   1FN5 --> 5PL2
 
-  M2 --> 2MOD1
-  2MOD1 --> 3BE2
-  2MOD2 --> 3BE2
-  2MOD3 --> 3BE2
+  M2 --> 2MOD4 & 2MOD5
   2MOD4 --> 3BE2
   2MOD5 --> 3BE2
   2MOD5 --> 3BE4
@@ -110,10 +96,10 @@ flowchart TD
 
 > All five modules ported to the stack and working locally (no DB yet). Each conforms to the module contract.
 
-### Blocked
+### To Do
 
-- [ ] 2MOD.4. Port Reckoner (group ranking/decision tool) into the module system — **depends on 1FN.2, 1FN.3, 1FN.4**
-- [ ] 2MOD.5. Port Baby Name Chooser — UI to Svelte, Claude calls moved to SvelteKit server route — **depends on 1FN.2, 1FN.3, 1FN.4**
+- [ ] 2MOD.4. Port Reckoner (group ranking/decision tool) into the module system — **depends on 1FN.2, 1FN.3, 1FN.4** (all ✓)
+- [ ] 2MOD.5. Port Baby Name Chooser — UI to Svelte, Claude calls moved to SvelteKit server route — **depends on 1FN.2, 1FN.3, 1FN.4** (all ✓)
 
 ### Completed
 
