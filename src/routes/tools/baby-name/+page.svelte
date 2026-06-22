@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { babyName } from '$lib/modules/tools/baby-name/state/babyName.svelte.js';
-	import IntroScreen      from '$lib/modules/tools/baby-name/components/IntroScreen.svelte';
+	import IntroScreen       from '$lib/modules/tools/baby-name/components/IntroScreen.svelte';
 	import PreferencesScreen from '$lib/modules/tools/baby-name/components/PreferencesScreen.svelte';
-	import SwipeScreen      from '$lib/modules/tools/baby-name/components/SwipeScreen.svelte';
-	import CombinedScreen   from '$lib/modules/tools/baby-name/components/CombinedScreen.svelte';
-	import FinalNamesScreen from '$lib/modules/tools/baby-name/components/FinalNamesScreen.svelte';
+	import SwipeScreen       from '$lib/modules/tools/baby-name/components/SwipeScreen.svelte';
+	import CombinedScreen    from '$lib/modules/tools/baby-name/components/CombinedScreen.svelte';
+	import FinalNamesScreen  from '$lib/modules/tools/baby-name/components/FinalNamesScreen.svelte';
+	import SavedScreen       from '$lib/modules/tools/baby-name/components/SavedScreen.svelte';
 </script>
 
 <svelte:head>
@@ -52,18 +53,24 @@
 	{:else if babyName.step === 'final:names'}
 		<FinalNamesScreen />
 
+	{:else if babyName.step === 'done'}
+		<SavedScreen />
+
 	{/if}
 </main>
 
 <style>
 	main {
 		min-height: 100dvh;
+		width: 100%;
+		overflow-x: hidden;
 		background: var(--color-surface);
 		font-family: var(--font-sans);
 		color: var(--color-on-surface);
 		padding: var(--space-6) var(--space-4) 4rem;
 		max-width: 640px;
 		margin-inline: auto;
+		box-sizing: border-box;
 	}
 
 	header {

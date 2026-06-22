@@ -51,6 +51,16 @@
 
 	<div class="actions">
 		<Button
+			onclick={() => babyName.saveResult()}
+			disabled={babyName.shortlist.length === 0}
+			fullWidth
+		>
+			{babyName.shortlist.length === 0 ? 'Shortlist names to lock in →' : `Lock in ${babyName.shortlist.length} name${babyName.shortlist.length === 1 ? '' : 's'} →`}
+		</Button>
+	</div>
+
+	<div class="secondary-actions">
+		<Button
 			variant="ghost"
 			onclick={() => babyName.regenerate()}
 			disabled={babyName.loading}
@@ -165,6 +175,10 @@
 	}
 
 	.actions {
+		padding-top: var(--space-2);
+	}
+
+	.secondary-actions {
 		display: flex;
 		gap: var(--space-3);
 		justify-content: center;

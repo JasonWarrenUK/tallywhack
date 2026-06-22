@@ -94,6 +94,17 @@ export interface CombinedProfile {
 	softDislikes: string[];
 	/** All names that should be excluded from future generation (disliked by either). */
 	exclusions: string[];
+	/**
+	 * True when both people selected themes, but with no overlap.
+	 * Used by the API prompt to switch to a "blend both styles" instruction
+	 * rather than the default "MUST be X OR Y" wording.
+	 */
+	themesDisjoint?: boolean;
+	/**
+	 * True when both people selected cultures/origins, but with no overlap.
+	 * Same prompt-switch trigger as themesDisjoint.
+	 */
+	culturesDisjoint?: boolean;
 }
 
 // ---------------------------------------------------------------------------

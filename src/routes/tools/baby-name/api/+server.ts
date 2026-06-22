@@ -44,12 +44,14 @@ const TasteProfileSchema = z.object({
 });
 
 const CombinedProfileSchema = z.object({
-	preferences:   PreferencesSchema,
-	strongLikes:   z.array(z.string()),
-	softLikes:     z.array(z.string()),
-	strongDislikes: z.array(z.string()),
-	softDislikes:  z.array(z.string()),
-	exclusions:    z.array(z.string())
+	preferences:     PreferencesSchema,
+	strongLikes:     z.array(z.string()),
+	softLikes:       z.array(z.string()),
+	strongDislikes:  z.array(z.string()),
+	softDislikes:    z.array(z.string()),
+	exclusions:      z.array(z.string()),
+	themesDisjoint:   z.boolean().optional(),
+	culturesDisjoint: z.boolean().optional()
 });
 
 const NameSuggestionSchema = z.object({
@@ -132,12 +134,35 @@ function buildFinalNamesPrompt(body: z.infer<typeof FinalNamesRequestSchema>): s
 		? `- DO NOT suggest any of these names: ${exclusions.join(', ')}`
 		: '';
 
+	// When both people chose themes or cultures that don't overlap at all,
+	// switch from "MUST be X OR Y" to a blend instruction that asks Claude to
+	// bridge the two different tastes rather than merely listing everything.
+	const themesLine = (() => {
+		if (!prefs.themes.length) return '- Themes: any theme';
+		if (combined.themesDisjoint) {
+			const aThemes = profileA.preferences.themes.join(', ') || 'any';
+			const bThemes = profileB.preferences.themes.join(', ') || 'any';
+			return `- Themes: blend these differing tastes — suggest names that bridge or draw from either ${profileA.person}'s (${aThemes}) and ${profileB.person}'s (${bThemes}) preferences`;
+		}
+		return `- Themes: MUST be ${prefs.themes.join(' OR ')} themed`;
+	})();
+
+	const culturesLine = (() => {
+		if (!prefs.cultures.length) return '- Cultures: any culture';
+		if (combined.culturesDisjoint) {
+			const aCultures = profileA.preferences.cultures.join(', ') || 'any';
+			const bCultures = profileB.preferences.cultures.join(', ') || 'any';
+			return `- Cultures: blend these differing tastes — suggest names that bridge or draw from either ${profileA.person}'s (${aCultures}) and ${profileB.person}'s (${bCultures}) origins`;
+		}
+		return `- Cultures: MUST be from ${prefs.cultures.join(' OR ')} origin`;
+	})();
+
 	return `Generate ${countNeeded} baby names for a couple based on their combined taste profile.
 
 COMBINED PREFERENCES (union of both people's choices):
 - Genders: ${prefs.genders.length ? prefs.genders.join(' OR ') : 'any gender'}
-- Themes: ${prefs.themes.length ? `MUST be ${prefs.themes.join(' OR ')} themed` : 'any theme'}
-- Cultures: ${prefs.cultures.length ? `MUST be from ${prefs.cultures.join(' OR ')} origin` : 'any culture'}
+${themesLine}
+${culturesLine}
 - Uniqueness (0–100): ${prefs.uniqueness} ${uniquenessNote}
 
 ${profileA.person}'s TASTE:
@@ -200,6 +225,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	// Call Claude via the SDK with structured output.
+	// Adaptive thinking is only enabled for the final call — it adds latency
+	// and is unnecessary for the 20-example taste-refinement pass.
 	const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
 	let message: Awaited<ReturnType<typeof client.messages.parse>>;
@@ -207,7 +234,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		message = await client.messages.parse({
 			model:      'claude-opus-4-8',
 			max_tokens: maxTokens,
-			thinking:   { type: 'adaptive' },
+			...(body.intent === 'final' ? { thinking: { type: 'adaptive' } } : {}),
 			messages:   [{ role: 'user', content: prompt }],
 			output_config: {
 				format: zodOutputFormat(NameArraySchema)

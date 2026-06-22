@@ -37,7 +37,7 @@
 	<!-- Participants -->
 	<Panel title="Participants">
 		<div class="list">
-			{#each reckoner.participants as participant, i}
+			{#each reckoner.participants as participant, i (participant.id)}
 				<div class="list-row">
 					<input
 						type="text"
@@ -66,7 +66,7 @@
 	<Panel title="Categories (optional)" collapsible open={reckoner.categories.length > 1}>
 		<p class="hint">Group your options into up to 3 categories (e.g. "Italian", "Asian", "Other").</p>
 		<div class="list">
-			{#each reckoner.categories as cat, i}
+			{#each reckoner.categories as cat, i (cat.id)}
 				<div class="list-row">
 					<input
 						type="text"
@@ -95,7 +95,7 @@
 	<Panel title="Options to rank">
 		{#if reckoner.hasCats}
 			<div class="cat-tabs">
-				{#each reckoner.activeCats as cat}
+				{#each reckoner.activeCats as cat (cat.id)}
 					<button
 						type="button"
 						class="cat-tab"
@@ -109,7 +109,7 @@
 		{#if reckoner.participants.length > 1}
 			<div class="adder-as">
 				<span class="adder-label">Adding as:</span>
-				{#each reckoner.participants as p, i}
+				{#each reckoner.participants as p, i (p.id)}
 					<button
 						type="button"
 						class="adder-pill"
@@ -135,7 +135,7 @@
 
 		{#if reckoner.entries.length > 0}
 			<ul class="entry-list">
-				{#each reckoner.entries as entry}
+				{#each reckoner.entries as entry (entry.id)}
 					{@const cat = reckoner.categories.find((c) => c.id === entry.categoryId)}
 					<li class="entry-item">
 						<span class="entry-text">{entry.text}</span>

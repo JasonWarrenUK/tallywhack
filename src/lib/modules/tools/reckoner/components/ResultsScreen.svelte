@@ -27,7 +27,7 @@
 	<!-- Category tabs (only shown when multiple active categories) -->
 	{#if reckoner.rankedGroups.length > 1}
 		<div class="tabs" role="tablist">
-			{#each reckoner.rankedGroups as group, i}
+			{#each reckoner.rankedGroups as group, i (group.category?.id ?? 'all')}
 				<button
 					type="button"
 					role="tab"
@@ -46,7 +46,7 @@
 	{#if reckoner.rankedGroups[activeGroupIdx]}
 		{@const group = reckoner.rankedGroups[activeGroupIdx]}
 		<ol class="rank-list">
-			{#each group.entries as entry, rank}
+			{#each group.entries as entry, rank (entry.id)}
 				<li class="rank-item" class:top={entry.isTop}>
 					<span class="rank-num" aria-label="Rank {rank + 1}">{rank + 1}</span>
 
@@ -63,7 +63,7 @@
 
 						<!-- Per-participant scores -->
 						<div class="scores">
-							{#each reckoner.participants as p}
+							{#each reckoner.participants as p (p.id)}
 								<span class="score-pill" title="{p.name}: {TIER_LABELS[entry.scores[p.id] ?? 4]}">
 									{p.name || `P${reckoner.participants.indexOf(p) + 1}`}:
 									{TIER_LABELS[entry.scores[p.id] ?? 4]}

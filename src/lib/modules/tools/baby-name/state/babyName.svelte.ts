@@ -25,6 +25,8 @@ import type {
 } from '../naming/types.js';
 import { PREFERENCE_DEFAULTS } from '../naming/types.js';
 import { loadSession, saveSession, INITIAL } from './persistence.js';
+import { toBabyNameResult } from './result.js';
+import { saveSavedResult, clearSavedResult } from './savedResult.js';
 
 const TARGET_FINAL_NAMES = 10;
 
@@ -296,6 +298,44 @@ function createBabyName() {
 	}
 
 	// -----------------------------------------------------------------------
+	// Save / lock in
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Lock in the current shortlist as the final result.
+	 *
+	 * Builds TasteProfiles from the in-progress snapshots (same as
+	 * buildAndGenerateFinal), calls the existing toBabyNameResult mapper,
+	 * persists the result to localStorage, and advances to the 'done' step.
+	 */
+	function saveResult(): void {
+		if (!combined) return;
+		if (shortlist.length === 0) return;
+
+		const tasteA: TasteProfile = buildTasteProfile({
+			person:      profileA.person || 'Person A',
+			preferences: profileA.preferences,
+			ratings:     profileA.ratings
+		});
+		const tasteB: TasteProfile = buildTasteProfile({
+			person:      profileB.person || 'Person B',
+			preferences: profileB.preferences,
+			ratings:     profileB.ratings
+		});
+
+		const result = toBabyNameResult({
+			shortlist,
+			profileA: tasteA,
+			profileB: tasteB,
+			combined
+		});
+
+		saveSavedResult(result);
+		step = 'done';
+		persist();
+	}
+
+	// -----------------------------------------------------------------------
 	// Reset
 	// -----------------------------------------------------------------------
 
@@ -309,6 +349,7 @@ function createBabyName() {
 		rejected   = new Set();
 		error      = null;
 		loading    = false;
+		clearSavedResult();
 		persist();
 	}
 
@@ -354,6 +395,7 @@ function createBabyName() {
 		buildAndGenerateFinal,
 		toggleShortlist,
 		regenerate,
+		saveResult,
 		startOver,
 		dismissError,
 		start

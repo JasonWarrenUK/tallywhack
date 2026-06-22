@@ -93,6 +93,8 @@
 		padding: var(--space-8) var(--space-5);
 		text-align: center;
 		min-height: 10rem;
+		max-width: 100%;
+		overflow-wrap: anywhere;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -112,6 +114,8 @@
 		color: var(--color-on-surface);
 		margin: 0;
 		letter-spacing: -0.02em;
+		overflow-wrap: anywhere;
+		max-width: 100%;
 	}
 
 	.meta {
@@ -127,5 +131,6 @@
 		display: flex;
 		gap: var(--space-3);
 		justify-content: center;
+		flex-wrap: wrap;
 	}
 </style>

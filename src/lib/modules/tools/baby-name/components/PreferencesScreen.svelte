@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { babyName } from '../state/babyName.svelte.js';
 	import { Button } from '$lib/components/index.js';
+	import { GENDER_OPTIONS, allowedGendersForPartner } from '../naming/genders.js';
 
-	const GENDERS   = ['Male', 'Female', 'Gender neutral'];
 	const THEMES    = ['Nature', 'Mythology', 'Royal', 'Vintage', 'Modern', 'Literary', 'Biblical', 'Musical', 'Celestial', 'Earthy'];
 	const CULTURES  = ['English', 'Irish', 'Scottish', 'Welsh', 'French', 'Italian', 'Spanish', 'Portuguese', 'Nordic', 'German', 'Greek', 'Latin', 'Hebrew', 'Arabic', 'Japanese', 'Indian'];
 
@@ -13,6 +13,15 @@
 
 	const prefs   = $derived(person === 'A' ? babyName.profileA.preferences : babyName.profileB.preferences);
 	const label   = $derived(person === 'A' ? (babyName.profileA.person || 'Person A') : (babyName.profileB.person || 'Person B'));
+
+	// Gender overlap: Person B's allowed chips are constrained by Person A's selection.
+	// Person A has no constraint. Canonical values are lowercase (male/female/neutral).
+	const allowedGenders = $derived(
+		person === 'B'
+			? allowedGendersForPartner(babyName.profileA.preferences.genders)
+			: GENDER_OPTIONS.map((o) => o.value)
+	);
+	const genderConstrained = $derived(person === 'B' && babyName.profileA.preferences.genders.length > 0);
 
 	function toggle(field: 'genders' | 'themes' | 'cultures', value: string) {
 		babyName.togglePreference(person, field, value);
@@ -26,15 +35,22 @@
 	<!-- Gender -->
 	<fieldset>
 		<legend>Gender</legend>
+		{#if genderConstrained}
+			<p class="overlap-hint">Limited to overlap with {babyName.profileA.person || 'Person A'}'s choices.</p>
+		{/if}
 		<div class="chip-group">
-			{#each GENDERS as g}
+			{#each GENDER_OPTIONS as { value, label: chipLabel }}
+				{@const isAllowed = allowedGenders.includes(value)}
 				<button
 					type="button"
 					class="chip"
-					class:active={prefs.genders.includes(g)}
-					onclick={() => toggle('genders', g)}
-					aria-pressed={prefs.genders.includes(g)}
-				>{g}</button>
+					class:active={prefs.genders.includes(value)}
+					class:disabled={!isAllowed}
+					onclick={() => { if (isAllowed) toggle('genders', value); }}
+					aria-pressed={prefs.genders.includes(value)}
+					aria-disabled={!isAllowed}
+					disabled={!isAllowed}
+				>{chipLabel}</button>
 			{/each}
 		</div>
 	</fieldset>
@@ -100,6 +116,13 @@
 		{babyName.loading ? 'Fetching examples…' : 'Next: taste test →'}
 	</Button>
 
+	{#if babyName.loading}
+		<div class="loading-inline" aria-live="polite">
+			<div class="spinner" aria-label="Fetching example names…"></div>
+			<p>Fetching example names…</p>
+		</div>
+	{/if}
+
 	{#if babyName.error}
 		<p class="error-msg" role="alert">{babyName.error}</p>
 		<Button variant="ghost" onclick={() => babyName.dismissError()}>Dismiss</Button>
@@ -124,6 +147,13 @@
 		font-size: 0.8125rem;
 		color: var(--color-muted);
 		margin: calc(-1 * var(--space-3)) 0 0;
+	}
+
+	.overlap-hint {
+		font-size: 0.8125rem;
+		color: var(--color-muted);
+		margin: 0 0 var(--space-2);
+		font-style: italic;
 	}
 
 	fieldset {
@@ -174,6 +204,16 @@
 		font-weight: 600;
 	}
 
+	/* Disallowed gender chips for Person B — visible but non-interactive */
+	.chip.disabled,
+	.chip[disabled] {
+		opacity: 0.35;
+		cursor: not-allowed;
+		border-color: var(--color-muted);
+		background: var(--color-surface);
+		color: var(--color-muted);
+	}
+
 	input[type='range'] {
 		width: 100%;
 		margin-top: var(--space-2);
@@ -186,6 +226,41 @@
 		font-size: 0.75rem;
 		color: var(--color-muted);
 		margin-top: var(--space-1);
+	}
+
+	/* Loading indicator — mirrors the final:loading spinner in +page.svelte */
+	.loading-inline {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-4) 0;
+	}
+
+	.loading-inline p {
+		color: var(--color-muted);
+		font-size: 0.9375rem;
+		margin: 0;
+	}
+
+	.spinner {
+		width: 2.5rem;
+		height: 2.5rem;
+		border: 3px solid var(--color-muted);
+		border-top-color: var(--color-primary);
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.spinner {
+			animation: none;
+			border-top-color: var(--color-primary);
+		}
 	}
 
 	.error-msg {

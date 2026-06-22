@@ -38,6 +38,16 @@ function union(a: string[], b: string[]): string[] {
 	return [...new Set([...a, ...b])];
 }
 
+/**
+ * True when both arrays are non-empty and share no common elements.
+ * Used to detect "disjoint" preference dimensions so the API prompt can
+ * switch from "MUST be X OR Y" wording to a "blend both styles" instruction.
+ */
+function disjoint(a: string[], b: string[]): boolean {
+	if (a.length === 0 || b.length === 0) return false;
+	return !a.some((x) => b.includes(x));
+}
+
 // ---------------------------------------------------------------------------
 // Taste aggregation
 // ---------------------------------------------------------------------------
@@ -83,13 +93,19 @@ export function combineProfiles(a: TasteProfile, b: TasteProfile): CombinedProfi
 
 	const exclusions = [...strongDislikes, ...softDislikes];
 
+	// Detect disjoint preference dimensions to trigger blend instructions in the prompt.
+	const themesDisjoint   = disjoint(a.preferences.themes,   b.preferences.themes);
+	const culturesDisjoint = disjoint(a.preferences.cultures, b.preferences.cultures);
+
 	return {
 		preferences:   mergePreferences(a.preferences, b.preferences),
 		strongLikes,
 		softLikes,
 		strongDislikes,
 		softDislikes,
-		exclusions
+		exclusions,
+		themesDisjoint,
+		culturesDisjoint
 	};
 }
 

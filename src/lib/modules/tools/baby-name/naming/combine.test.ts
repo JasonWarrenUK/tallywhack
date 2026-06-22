@@ -42,11 +42,11 @@ function makeProfile(
 
 describe('mergePreferences', () => {
 	it('unions genders from both people', () => {
-		const a: Preferences = { ...DEFAULT_PREFS, genders: ['Male'] };
-		const b: Preferences = { ...DEFAULT_PREFS, genders: ['Female'] };
+		const a: Preferences = { ...DEFAULT_PREFS, genders: ['male'] };
+		const b: Preferences = { ...DEFAULT_PREFS, genders: ['female'] };
 		const merged = mergePreferences(a, b);
-		expect(merged.genders).toContain('Male');
-		expect(merged.genders).toContain('Female');
+		expect(merged.genders).toContain('male');
+		expect(merged.genders).toContain('female');
 	});
 
 	it('deduplicates overlapping selections', () => {
@@ -153,12 +153,58 @@ describe('combineProfiles', () => {
 	});
 
 	it('merges preferences from both profiles', () => {
-		const a = makeProfile([], [], { genders: ['Female'], uniqueness: 20 });
-		const b = makeProfile([], [], { genders: ['Male'],   uniqueness: 80 });
+		const a = makeProfile([], [], { genders: ['female'], uniqueness: 20 });
+		const b = makeProfile([], [], { genders: ['male'],   uniqueness: 80 });
 		const combined = combineProfiles(a, b);
-		expect(combined.preferences.genders).toContain('Female');
-		expect(combined.preferences.genders).toContain('Male');
+		expect(combined.preferences.genders).toContain('female');
+		expect(combined.preferences.genders).toContain('male');
 		expect(combined.preferences.uniqueness).toBe(50);
+	});
+
+	// -----------------------------------------------------------------------
+	// Disjoint-dimension flags (no-overlap detection)
+	// -----------------------------------------------------------------------
+
+	it('culturesDisjoint is true when both sides have non-overlapping cultures', () => {
+		const a = makeProfile([], [], { cultures: ['Japanese', 'Indian'] });
+		const b = makeProfile([], [], { cultures: ['Irish', 'Welsh'] });
+		const combined = combineProfiles(a, b);
+		expect(combined.culturesDisjoint).toBe(true);
+	});
+
+	it('culturesDisjoint is false when cultures overlap', () => {
+		const a = makeProfile([], [], { cultures: ['Japanese', 'Irish'] });
+		const b = makeProfile([], [], { cultures: ['Irish', 'Welsh'] });
+		const combined = combineProfiles(a, b);
+		expect(combined.culturesDisjoint).toBe(false);
+	});
+
+	it('culturesDisjoint is false when either side has no cultures (no constraint)', () => {
+		const a = makeProfile([], [], { cultures: [] });
+		const b = makeProfile([], [], { cultures: ['Irish'] });
+		const combined = combineProfiles(a, b);
+		expect(combined.culturesDisjoint).toBe(false);
+	});
+
+	it('themesDisjoint is true when both sides have non-overlapping themes', () => {
+		const a = makeProfile([], [], { themes: ['Nature', 'Earthy'] });
+		const b = makeProfile([], [], { themes: ['Mythology', 'Royal'] });
+		const combined = combineProfiles(a, b);
+		expect(combined.themesDisjoint).toBe(true);
+	});
+
+	it('themesDisjoint is false when themes overlap', () => {
+		const a = makeProfile([], [], { themes: ['Nature', 'Mythology'] });
+		const b = makeProfile([], [], { themes: ['Mythology', 'Royal'] });
+		const combined = combineProfiles(a, b);
+		expect(combined.themesDisjoint).toBe(false);
+	});
+
+	it('themesDisjoint is false when either side has no themes', () => {
+		const a = makeProfile([], [], { themes: [] });
+		const b = makeProfile([], [], { themes: ['Nature'] });
+		const combined = combineProfiles(a, b);
+		expect(combined.themesDisjoint).toBe(false);
 	});
 });
 
