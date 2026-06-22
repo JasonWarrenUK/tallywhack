@@ -238,11 +238,15 @@
 	.tile--selected { border-color: var(--color-primary); background: var(--color-primary-bg); }
 	.tile--blank { opacity: 0.6; }
 
-	/* Premium square colours — module-scoped, not global tokens. */
-	.tile--DL { background: #c6dff7; border-color: #4f87c0; }
-	.tile--TL { background: #9bcfb8; border-color: #2e7f5a; }
-	.tile--DW { background: #f9d9c3; border-color: #c25b1a; }
-	.tile--TW { background: #f4b0b0; border-color: #b91c1c; }
+	/* Premium square colours — module-scoped, not global tokens.
+	   These are intentionally light pastels that evoke a physical Scrabble board.
+	   The tile letter colour inherits --color-on-surface, which goes near-white in
+	   dark mode — so we pin an explicit dark text colour here to keep the squares
+	   legible regardless of the active theme. */
+	.tile--DL { background: #c6dff7; border-color: #4f87c0; color: #1a2a3a; }
+	.tile--TL { background: #9bcfb8; border-color: #2e7f5a; color: #0d2118; }
+	.tile--DW { background: #f9d9c3; border-color: #c25b1a; color: #3a1800; }
+	.tile--TW { background: #f4b0b0; border-color: #b91c1c; color: #3a0000; }
 
 	.tile__letter {
 		font-size: 1.125rem;

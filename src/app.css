@@ -10,6 +10,11 @@
  * Surfaces always use the neutral gray scale — they do not shift with the palette.
  */
 :root {
+	/* Declare support for both colour schemes so native controls and
+	   scrollbars adapt. The per-theme blocks below narrow this to 'dark'
+	   when dark mode is active. */
+	color-scheme: light dark;
+
 	--color-primary: var(--color-azure-3);
 	--color-primary-bg: var(--color-azure-1);
 	--color-primary-text: var(--color-azure-6);
@@ -31,8 +36,11 @@
 	--space-2: 8px;
 	--space-3: 12px;
 	--space-4: 16px;
+	--space-5: 20px;
 	--space-6: 24px;
+	--space-7: 28px;
 	--space-8: 32px;
+	--space-10: 40px;
 
 	/* Border radii */
 	--radius-sm: 8px;
@@ -71,6 +79,67 @@
 [data-palette='teal']       { --color-primary: var(--color-teal-3);       --color-primary-bg: var(--color-teal-1);       --color-primary-text: var(--color-teal-6); }
 [data-palette='violet']     { --color-primary: var(--color-violet-3);     --color-primary-bg: var(--color-violet-1);     --color-primary-text: var(--color-violet-6); }
 [data-palette='yellow']     { --color-primary: var(--color-yellow-3);     --color-primary-bg: var(--color-yellow-1);     --color-primary-text: var(--color-yellow-6); }
+
+/*
+ * Dark theme
+ *
+ * Applied by EITHER the OS colour-scheme preference (the follow-system default,
+ * suppressed when the user has explicitly chosen light) OR an explicit
+ * data-theme="dark" attribute written by the theme store / FOUC script.
+ * Explicit choice always wins over the OS preference — see the :not() guard.
+ *
+ * Surfaces invert across the gray scale: the palest tint becomes near-black
+ * and vice versa. The palette-driven primary bg/text are re-derived generically
+ * from --color-primary via color-mix, so no per-palette dark blocks are needed.
+ *
+ * The declaration list is intentionally duplicated: one block lives inside a
+ * media query and one does not, and they cannot be merged into a single
+ * selector list. This is the standard pattern for this precedence model.
+ */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) {
+		color-scheme: dark;
+		--color-surface:        var(--color-gray-6);
+		--color-on-surface:     var(--color-gray-1);
+		--color-muted:          var(--color-gray-3);
+		--color-surface-raised: var(--color-gray-5);
+		--color-danger-text:    var(--color-red-2);
+		--color-primary-bg:   color-mix(in srgb, var(--color-primary) 22%, var(--color-surface));
+		--color-primary-text: color-mix(in srgb, var(--color-primary) 70%, var(--color-on-surface));
+	}
+}
+
+:root[data-theme='dark'] {
+	color-scheme: dark;
+	--color-surface:        var(--color-gray-6);
+	--color-on-surface:     var(--color-gray-1);
+	--color-muted:          var(--color-gray-3);
+	--color-surface-raised: var(--color-gray-5);
+	--color-danger-text:    var(--color-red-2);
+	--color-primary-bg:   color-mix(in srgb, var(--color-primary) 22%, var(--color-surface));
+	--color-primary-text: color-mix(in srgb, var(--color-primary) 70%, var(--color-on-surface));
+}
+
+/*
+ * Palette-wrapper dark override
+ *
+ * The [data-palette] blocks on the layout wrapper set --color-primary-bg and
+ * --color-primary-text with light shade values (shade-1 / shade-6). Because
+ * the wrapper is a descendant of :root, those values would otherwise win over
+ * the :root dark vars above for all module routes. These higher-specificity
+ * rules re-derive the palette bg/text generically from --color-primary when
+ * dark mode is active, covering all 24 palettes with no per-palette code.
+ */
+:root[data-theme='dark'] [data-palette] {
+	--color-primary-bg:   color-mix(in srgb, var(--color-primary) 22%, var(--color-surface));
+	--color-primary-text: color-mix(in srgb, var(--color-primary) 70%, var(--color-on-surface));
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme='light']) [data-palette] {
+		--color-primary-bg:   color-mix(in srgb, var(--color-primary) 22%, var(--color-surface));
+		--color-primary-text: color-mix(in srgb, var(--color-primary) 70%, var(--color-on-surface));
+	}
+}
 
 /* Reset */
 *,
