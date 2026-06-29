@@ -22,8 +22,6 @@ flowchart TD
 
   1FN5["`*1FN.5*<br/>**FN**<br/>PWA + mobile-first baseline`"]:::open
 
-  2MOD4["`*2MOD.4*<br/>**MOD**<br/>Port Reckoner`"]:::open
-  2MOD5["`*2MOD.5*<br/>**MOD**<br/>Port Baby Name Chooser`"]:::open
   2MOD6["`*2MOD.6*<br/>**MOD**<br/>Investigate deterministic name sourcing`"]:::blocked
 
   3BE1["`*3BE.1*<br/>**BE**<br/>Provision Supabase`"]:::open
@@ -45,11 +43,7 @@ flowchart TD
   M1 --> 1FN5
   1FN5 --> 5PL2
 
-  M2 --> 2MOD4 & 2MOD5
-  2MOD4 --> 3BE2
-  2MOD5 --> 3BE2
-  2MOD5 --> 3BE4
-  2MOD5 --> 2MOD6
+  M2 --> 2MOD6
   3BE4 --> 2MOD6
   2MOD6 --> 5PL3
 
